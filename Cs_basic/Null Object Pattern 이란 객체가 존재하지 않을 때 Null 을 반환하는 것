@@ -1,0 +1,126 @@
+Null Object Pattern 이란 객체가 존재하지 않을 때 Null 을 반환하는 것 대신, 동일한 인터페이스 구현하되 아무런 동작도 수행하지 않는 객체를 반환하는 기법을 말한다.
+
+# 해당 기법의 효용
+
+1. Null 체크가 필요할 경우 코드 마다 
+
+```
+public void doSomething(MyObject obj) {
+  if(obj == null) {
+    throw new Exception();
+  }
+
+  obj.doMethod();
+}
+```
+
+와 같이 Null 체크를 해줘야하는데 이러한 체크가 여러번 필요해서 작성할 경우 코드가 복잡해지는 경우가 많은데 이때
+
+```
+class MyNullObject implements MyObject {
+
+  @Override
+  public void doMethod() {
+    // 아무것도 하지 않음
+  }
+}
+
+class MyRealObject implements MyObject {
+
+  @Override
+  public void doMethod() {
+      System.out.println("무엇인가 수행합니다.")
+  }
+}
+
+public void doSomething(MyObject obj) {
+  obj.doMethod();
+}
+```
+
+> 이처럼 동일한 인터페이스를 사용하면서 아무것도 수행하지 않는 객체를 생성하여 널 체크 코드를 간소화 할 수 있다 !
+> 
+
+
+
+Null Object Pattern의 위험성
+
+하지만 조용한 실패가 발생할 수 있다!, 에러 발생 시 서버가 다운되거나 너무 많은 에러를 방지하기 위한 용도로 사용할 경우 사용자 입장에서는 성공 했으나 사실 데이터가 저장되지 않는 등 여러 문제가 발생할 수 있다
+
+
+즉, → 써도 그만 안써도 그만인 경우에만 사용해야한다.
+
+구체적인 예시)
+
+### 상황 설정: 쇼핑몰 주문 시스템
+
+개발자가 DB 연결이 끊겨도 쇼핑몰 서버가 죽으면 안 된다는 강박에 빠져서, DB 연결 실패 시 에러를 띄우는 대신 `NullOrderRepository`(가짜 저장소)를 반환하도록 만들었다고 가정해보자.
+
+```
+// 1. 주문 저장소 인터페이스
+interface OrderRepository {
+    void save(String order);
+}
+
+// 2. [정상] 실제 DB 저장소
+class DatabaseOrderRepository implements OrderRepository {
+    public void save(String order) {
+        System.out.println("DB에 주문 데이터 저장 완료: " + order); // 정상 동작
+    }
+}
+
+// 3. [패턴 적용] 널 오브젝트 (아무 일도 안 함)
+class NullOrderRepository implements OrderRepository {
+    public void save(String order) {
+        // [문제의 핵심]
+        // 저장을 하라고 했는데, 아무것도 안 하고 조용히 넘어감.
+        // 예외도 발생시키지 않음.
+    }
+}
+```
+
+공장(Factory)
+
+```
+class RepositoryFactory {
+    public static OrderRepository getRepository() {
+        try {
+            // DB 연결 시도...
+            // (가정) 현재 DB 서버가 다운되어서 연결 실패!
+            throw new RuntimeException("DB Connection Fail"); 
+        } catch (Exception e) {
+            // [나쁜 판단]
+            // "에러 내지 말고 일단 서버는 살려두자"라며 널 오브젝트를 반환
+            System.out.println("경고: DB 연결 실패. 임시로 Null 저장소 사용.");
+            return new NullOrderRepository(); 
+        }
+    }
+}
+```
+
+서비스 로직(비즈니스)
+
+```
+class OrderService {
+    public void placeOrder(String item) {
+        OrderRepository repo = RepositoryFactory.getRepository();
+        
+        // repo가 NullObject인지 모름. 그냥 save 호출.
+        repo.save(item); 
+        
+        // [치명적 결과]
+        // 예외가 안 났으니, 코드는 아래 줄로 넘어감.
+        // 사용자는 "주문 성공" 메시지를 보게 됨.
+        System.out.println("주문이 성공적으로 처리되었습니다!");
+    }
+}
+```
+
+위 코드를 실행할 경우 
+
+1. 사용자 입장 : 주문 성공! 과 같은 문구를 확인하게 됨
+2. 개발자 입장 : 서버 로그에 error에 대한 내용이 안찍힘 
+
+추후 사용자는 왜 본인의 물건이 안오는지 문의하게 되고 개발자는 서버 로그 상으로 원인을 파악할 수 없게 되어버림
+
+⇒ 원인 파악 불가
