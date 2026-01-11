@@ -35,4 +35,20 @@ class Solution {
 ms 라는 문자 배열을 생성하고 그 안에 문자열을 넣어서 문제가 됐다. toCharArray() 를 통해 문자로 변경해서 넣는게 올바르다.
 배열의 길이는 length만 사용하고 +1 붙이면 인덱스 아웃 바운드 익셉션 뜬다 
 
+정답 
+class Solution {
+    public String solution(String my_string, String overwrite_string, int s) {
+        char ms [] = my_string.toCharArray();
+        char os [] = overwrite_string.toCharArray();
+        
+        int j = 0;
+        
+        for(int i = s; i < s + os.length; i++){
+            ms[i] = os[j];
+            j++;
+        }
+        return new String(ms);
+    }
+}
+
  
