@@ -1,0 +1,38 @@
+문자열 겹쳐쓰기
+의도: 나는 overwrite의 글자 수 만큼만 교체하고 반환할거야
+맨 처음 풀이
+class Solution {
+    public String solution(String my_string, String overwrite_string, int s) {
+        String ms[] = new String[my_string.length()];
+        String os[] = new String[overwrite_string.length()];    
+        String result[] = new String[my_string.length()];
+        
+        int j = 0;
+        for(int i = s; i<ms.length()+1; i++){
+            ms[i] = os[j];
+            j++;
+        }
+        return ms;
+    }
+}
+가장 핵심적으로 인지해야하는 부분은 함수의 타입에 맞는 값을 리턴해야하는데 그 부분 신경을 못썼고 문자열 배열을 생성했는데 배열의 크기를 입력한 문자열의 크기만큼 이라는 코드자체를 쓸 필요 없이 배열 바로 만들고 값을 초기화하는게 더 컴팩트하다 
+두 번째 풀이
+
+class Solution {
+    public String solution(String my_string, String overwrite_string, int s) {
+        char ms [] = my_string;
+        char os [] = overwrite_string;
+        
+        int j = 0;
+        for(int i = s; i<ms.length()+1; i++){
+            ms[i] = os[j];
+            j++;
+        }
+        return String(ms);
+    }
+}
+
+ms 라는 문자 배열을 생성하고 그 안에 문자열을 넣어서 문제가 됐다. toCharArray() 를 통해 문자로 변경해서 넣는게 올바르다.
+배열의 길이는 length만 사용하고 +1 붙이면 인덱스 아웃 바운드 익셉션 뜬다 
+
+ 
