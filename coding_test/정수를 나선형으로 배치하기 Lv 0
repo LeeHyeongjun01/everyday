@@ -1,0 +1,92 @@
+정수를 나선형으로 배치하기 Lv 0
+내 의도 : 맨 처음엔 행과 열을 표로 그려서 인덱스의 규칙을 찾고자 했으나
+인덱스의 규칙이 숫자적인 규칙이 아닌 형태적인 규칙이여서 나선형으로 진행하면서 코너가 나올 경우 방향을 변경해서 진행하는 방식을 채택했다.
+
+class Solution {
+    public int[][] solution(int n) {
+        int[][] answer = new int[n][n];
+        
+        int top = 0;
+        int right = n-1;
+        int bottom = n-1;
+        int left = 0;
+        
+        int num =1;
+        while(num<=n*n){
+            //Top 단계
+            for(int i = left; i<=right; i++){
+                answer[top][i] = num;
+                num++;
+            }
+            top++;
+            if(num>n*n) break;
+            //right 단계
+            for(int i = top; i<=bottom; i++){
+                answer[i][right] = num;
+                num++;
+            }
+            right--;
+            if(num>n*n) break;
+            //bottom 단계
+            for(int i = right; i>=left; i--){
+                answer[bottom][i] = num;
+                num++;
+            }
+            bottom--;
+            if(num>n*n) break;
+            //left 단계
+            for(int i = bottom; i>=top; i--){
+                answer[i][left] = num;
+                num++;
+            }
+            left++;
+            if(num>n*n) break;
+        }
+        
+        return answer;
+    }
+}
+
+이 방식 말고 dx, dy 배열을 통한 풀이
+
+class Solution {
+    public int[][] solution(int n) {
+        int[][] answer = new int [n][n];
+        
+        // 방향 표 우-하-좌-상
+        int[] dx={0,1,0,-1}; //행 이동
+        int[] dy={1,0,-1,0};  // 열 이동
+        
+        int x =0; //현재 행
+        int y =0; //현재 열
+        int dir =0; // 방향 (0:우 1:하 2:좌 3:상)    
+            
+        // 숫자 1부터 n*n까지 채우기
+            for(int num= 1; num<=n*n; num++){
+                answer[x][y] = num; //현재 위치에 숫자 채우기
+                
+                // 다음 칸 미리 가보기 
+                int nx = x + dx[dir]; 
+                int ny = y + dy[dir];
+                
+            // x, y가 0보다 작거나 n보다 클 경우 또는 확인한 칸에 값이 들어가 있을 경우-> 방향 전환
+                if(nx<0 || nx>=n || ny < 0 || ny>=n || answer[nx][ny]!=0){
+                    // 방향 틀기(0->1, 1->2, 2->3, 3->0)
+                    dir = (dir+1) % 4;
+                    
+                    // 방향 바뀌었으니 다시 계산 (다음칸 미리 가보기 단계에서 if문에 해당 됐기 때문에 방향을 전환해줘야 함)
+                    nx = x + dx[dir];
+                    ny = y + dy[dir];
+                }
+                // 진짜 이동.
+                x = nx;
+                y = ny;
+            }
+            
+        return answer;
+    }
+}
+
+핵심 : 다음 칸 미리 가서 범위를 벗어났거나 값이 있을 경우 방향을 전환해야함 
+방향을 전환하는 원리와 범위 및 칸 검사 로직에 대한 확실한 이해를 하는게 핵심이다.
+
