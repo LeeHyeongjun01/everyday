@@ -1,0 +1,44 @@
+템플릿 메서드 패턴이란 무엇인가요?
+
+우선 해당 내용은 정보처리기사 실기 시험에도 등장하는것으로 인지하고 있다.
+
+템플릿 메서드 패턴이란 뼈대와 기능을 분리하는 행위 디자인 패턴 중 하나이다. 템플릿 메서드는 실행 단계의 절차를 결정하는 상위 클래스와 실행 단계를 구현하는 하위 클래스로 나뉘어져있다. 
+
+public abstract class Student {
+  
+    public abstract void study();
+    public abstract void watchYoutube();
+    public abstract void sleep();
+
+    // 템플릿 메서드
+    final public void doDailyRoutine() {
+       study();
+       watchYoutube();
+       sleep();
+    }
+}
+
+class BackendStuduent extends Student {
+
+    @Override
+    public void study() {
+        System.out.println("영한님 JPA 강의를 수강합니다.");
+    }
+
+    @Override
+    public void watchYoutube() {
+        System.out.println("개발바닥 유튜브를 시청합니다.");   
+    }
+
+    @Override
+    public void sleep() {
+        System.out.println("7시간 잠을 잡니다.");   
+    }
+}
+
+해당 지문을 보면 공부하기, 유튜브 시청하기, 잠자기 총 3개의 행위가 상위 클래스로 고정되어있다 하위 클래스는 해당 행위를 모두 순서대로 진행해야하며 하위 클래스에서 임의로 하나를 빼먹을 수 없다. 이를 통해 누락을 방지할 수 있고 흐름을 제어할 수 있다는게 큰 장점이다.
+
+하지만 장점이면서도 단점인 부분이 존재하는데 그건 상위 클래스를 수정할 경우 하위 클래스 모두 수정해야한다는 단점이 있고 이는 강한 결합이라고 본다. 또한 상위 클래스 내용을 알아야 하위 클래스를 작성할 수 있기 때문에 캡슐화(정보 은닉)를 깨야해서 좋은 구조가 아니다. 
+
+쓰는 상황 : 프레임 워크나 라이브러리 만들 때, 다른 개발자를 믿지 못해서 상위 클래스로 강제해야할 때  
+이때를 제외하곤 굳이 쓸 필요 없는 옛날 방식이다. 
