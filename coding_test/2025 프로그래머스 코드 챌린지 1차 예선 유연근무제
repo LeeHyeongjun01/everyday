@@ -1,0 +1,58 @@
+2025 프로그래머스 코드 챌린지 1차 예선 유연근무제
+첫 풀이 시도
+class Solution {
+    public int solution(int[] schedules, int[][] timelogs, int startday) {
+        int[] schedules = new int[n];
+        int[][] timelogs = new int[n][7];
+        int startday = 1;
+        
+        // 이벤트 받을 자격이 있는 사람 검사 로직을 구할 때 반복 조건은 일주일이다. 
+        for (int i = startday; i<startday+7; i++){
+            startday = i % 7; 
+            // 만약 시작일이 0이라면 월요일로 변경
+            if(startday == 0 ){
+              startday =1;  
+            } 
+        }
+    }
+}
+
+1 : 월 2 : 화 3: 수 4: 목 5: 금 6:토 7:일
+
+6이거나 7이면 고려 안하고
+
+최종 풀이(정답)
+class Solution {
+    public int solution(int[] schedules, int[][] timelogs, int startday) {
+        int n = schedules.length; // 직원 수
+        int reward_time = 0; // 출근 인정 시각.
+        
+        int answer = 0; // 상품을 받을 직원 수.
+        
+        // 1. 모든 직원에 대해서 포문
+        for(int i=0; i<n; i++){ 
+            reward_time = schedules[i] + 10; //모든 직원에 대하여 출근 인정 시각 뽑아내기
+            if(reward_time % 100 >= 60){
+                reward_time += 40;
+            }
+            boolean isPass = true;
+            // 2. 첫 번째 직원에 대하여 희망 출근 시간과 실제 출근 시간이 동일한지 검사 
+            for(int j = 0; j<7; j++){
+                
+                int today = (startday+j) % 7;
+                    if(today == 0) today = 7;
+                if(today == 6 || today == 7) continue; //토요일이거나 일요일인 경우
+                
+                if(reward_time < timelogs[i][j]){
+                    isPass = false;
+                    break;
+                }     
+                
+            }
+            if(isPass)answer++;
+        }
+        return answer;
+    }
+}
+
+시간에 10분 추가하는 부분에서 60분이 넘어갔을 때 시를 올려줘야하는 부분과 배열내 인덱스와 요일 숫자를 다루는 방식이 1차이가 나서 계속 헷갈렸던게 문제였다. 맨 처음엔 switch 문을 사용해서 토요일과 일요일의 경우를 제외하려고 했으나 if continue를 이용한 사전에 막아버리는 방법을 채택하는게 훨씬 더 좋은 구조라는 것을 알게 돼서 그렇게 수정했다
